@@ -8,6 +8,8 @@ function App() {
         {id: 1, title: 'React Components', description: 'Изучение базовых компонентов', status: 'completed', notes: ''},
         {id: 2, title: 'JSX Syntax', description: 'Освоение синтаксиса JSX', status: 'in-progress', notes: ''},
         {id: 3, title: 'State Management', description: 'Работа с состоянием компонентов', status: 'not-started', notes: ''},
+        {id: 4, title: 'Postgres', description: 'Изучение работы с запросами в postgres', status: 'in-progress'},
+        {id: 5, title: 'useEffect', description: 'Работа с хуком useState', status: 'not-started'}
     ]);
     const [filter, setFilter] = useState('all');
 
