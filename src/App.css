@@ -54,3 +54,50 @@ body {
     margin: 0 auto;
     max-width: 900px;
 }
+.quick-actions {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 25px;
+    text-align: center;
+}
+.quick-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 12px;
+}
+.quick-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #f0f0f0;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+.quick-buttons button:hover {
+    background: #e0e0e0;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px 0;
+}
+.filter-buttons button {
+    padding: 6px 14px;
+    border: 3px solid #ccc;
+    border-radius: 20px;
+    background: #f9f9f9;
+    cursor: pointer;
+}
+.filter-buttons button.active {
+    background: #45b7d1;
+    color: white;
+    border-color: #45b7;
+}
