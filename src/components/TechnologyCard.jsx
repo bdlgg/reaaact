@@ -1,5 +1,6 @@
 import './TechnologyCard.css'
-function TechnologyCard({title, description, status, onStatusChange}) {
+import TechnologyNotes from "./TechnologyNotes.jsx";
+function TechnologyCard({id, title, description, status, notes, onStatusChange, onNotesChange}) {
     const nextStatus = (current) => {
         if (current === 'not-started') return 'in-progress';
         if (current === 'in-progress') return 'completed';
@@ -17,6 +18,11 @@ function TechnologyCard({title, description, status, onStatusChange}) {
                 {status === "in-progress" && '⏳ в процессе'}
                 {status === "not-started" && '⚪ не начато'}
             </div>
+            <TechnologyNotes
+                notes={notes}
+                onNotesChange={onNotesChange}
+                techId={id}
+            />
         </div>
     );
 }
