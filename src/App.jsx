@@ -82,6 +82,7 @@ function App() {
                 onMarkAllCompleted={markAllCompleted}
                 onResetAll={resetAll}
                 onRandomNext={randomNext}
+                technologies={technologies}
             />
             <div className="search-box">
                 <input
