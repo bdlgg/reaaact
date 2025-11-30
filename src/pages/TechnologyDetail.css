@@ -1,0 +1,76 @@
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.back-link {
+    text-decoration: none;
+    color: #45b7d1;
+    font-weight: 500;
+    padding: 6px 10px;
+    border: 1px solid #45b7d1;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.back-link:hover {
+    background-color: #e3f2fd;
+}
+
+.page-header h1 {
+    margin: 0;
+    color: #333;
+    flex-grow: 1;
+}
+
+.technology-detail {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.detail-section {
+    margin-bottom: 30px;
+}
+
+.detail-section h3 {
+    margin-top: 0;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.status-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.status-buttons button {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.status-buttons button.active {
+    background-color: #45b7d1;
+    color: white;
+    border-color: #45b7d1;
+}
+
+.status-buttons button:hover:not(.active) {
+    background-color: #e0e0e0;
+}
+
+.notes-hint {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: 6px;
+}
