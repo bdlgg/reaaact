@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import useTechnologies from '../hooks/useTechnologies';
 import Modal from '../components/Modal';
 import './Settings.css';
@@ -8,14 +8,17 @@ function Settings() {
     const { technologies, setTechnologies } = useTechnologies();
     const [showResetModal, setShowResetModal] = useState(false);
     const [showClearAllModal, setShowClearAllModal] = useState(false);
+    // eslint-disable-next-line no-unused-vars
     const [showImportModal, setShowImportModal] = useState(false);
-    const [importData, setImportData] = useState('');
+    const [importStatus, setImportStatus] = useState('');
 
     const handleResetAll = () => {
         const resetTechnologies = technologies.map(tech => ({
             ...tech,
             status: 'not-started',
-            notes: ''
+            notes: '',
+            deadline: '',
+            priority: 'medium'
         }));
         setTechnologies(resetTechnologies);
         setShowResetModal(false);
@@ -28,22 +31,6 @@ function Settings() {
         alert('Все технологии удалены.');
     };
 
-    const handleImport = () => {
-        try {
-            const parsedData = JSON.parse(importData);
-            if (Array.isArray(parsedData) && parsedData.every(item => item.id && item.title)) {
-                setTechnologies(parsedData);
-                setShowImportModal(false);
-                setImportData('');
-                alert('Данные успешно импортированы.');
-            } else {
-                alert('Неверный формат данных. Ожидается массив объектов с полями id и title.');
-            }
-        } catch (e) {
-            alert('Ошибка при разборе JSON. Проверьте формат данных.');
-        }
-    };
-
     const handleExport = () => {
         const exportData = {
             exportedAt: new Date().toISOString(),
@@ -54,11 +41,49 @@ function Settings() {
         const url = URL.createObjectURL(dataBlob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'tech-tracker-export.json';
+        link.download = `tech-tracker-export-${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+    };
+
+    const handleImport = (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const content = e.target.result;
+                const parsedData = JSON.parse(content)
+                if (parsedData && Array.isArray(parsedData.technologies)) {
+                    setTechnologies(parsedData.technologies);
+                    setImportStatus(`Успешно импортировано ${parsedData.technologies.length} технологий`);
+                    setShowImportModal(false);
+                }
+                else if (Array.isArray(parsedData)){
+                    setTechnologies(parsedData);
+                    setImportStatus(`Успешно импортировано ${parsedData.length} технологий`);
+                    setShowImportModal(false);
+                }
+                else {
+                    throw new Error('Неверный формат данных. ожидается объект с полем "technologies" или массив');
+                }
+            }
+            catch (error) {
+                console.error('Ошибка импорта: ', error);
+                setImportStatus('Ошибка: неверный формат JSON или структуры данных')
+            }
+        };
+        reader.onerror = () => {
+            setImportStatus('Ошибка: Не удалось прочитать файл.')
+        };
+        reader.readAsText(file);
+        event.target.value = '';
+    };
+
+    const handleImportClick = () => {
+        document.getElementById('import-file-input').click();
     };
 
     return (
@@ -72,11 +97,21 @@ function Settings() {
                     <button onClick={() => setShowResetModal(true)} className="btn btn-warning"> 🔄 Сбросить все статусы и заметки </button>
                     <button onClick={() => setShowClearAllModal(true)} className="btn btn-danger">🗑️ Удалить все технологии</button>
                     <button onClick={handleExport} className="btn btn-info">📤 Экспорт данных</button>
-                    <button onClick={() => setShowImportModal(true)} className="btn btn-info">📥 Импорт данных</button>
+                    <button onClick={handleImportClick} className="btn btn-info">📥 Импорт данных</button>
+                    <input
+                        id="import-file-input"
+                        type="file"
+                        accept=".json"
+                        onChange={handleImport}
+                        style={{ display: 'none' }}
+                    />
                 </div>
+                {importStatus && (
+                    <div className={`status-message ${importStatus.startsWith('Ошибка') ? 'error' : 'success'}`}>
+                        {importStatus}
+                    </div>
+                )}
             </div>
-
-            {/* Модальное окно подтверждения сброса */}
             <Modal
                 isOpen={showResetModal}
                 onClose={() => setShowResetModal(false)}
@@ -89,8 +124,6 @@ function Settings() {
                     <button onClick={() => setShowResetModal(false)} className="btn btn-secondary">Отмена</button>
                 </div>
             </Modal>
-
-            {/* Модальное окно подтверждения удаления */}
             <Modal
                 isOpen={showClearAllModal}
                 onClose={() => setShowClearAllModal(false)}
@@ -101,25 +134,6 @@ function Settings() {
                 <div className="modal-actions">
                     <button onClick={handleClearAll} className="btn btn-danger">Да, удалить всё</button>
                     <button onClick={() => setShowClearAllModal(false)} className="btn btn-secondary">Отмена</button>
-                </div>
-            </Modal>
-
-            {/* Модальное окно импорта */}
-            <Modal
-                isOpen={showImportModal}
-                onClose={() => setShowImportModal(false)}
-                title="Импорт данных"
-            >
-                <p>Вставьте JSON-данные для импорта:</p>
-                <textarea
-                    value={importData}
-                    onChange={(e) => setImportData(e.target.value)}
-                    placeholder='{"exportedAt": "...", "technologies": [...]}'
-                    rows="8"
-                />
-                <div className="modal-actions">
-                    <button onClick={handleImport} className="btn btn-primary">Импортировать</button>
-                    <button onClick={() => setShowImportModal(false)} className="btn btn-secondary">Отмена</button>
                 </div>
             </Modal>
         </div>

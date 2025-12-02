@@ -3,7 +3,7 @@ import ProgressHeader from "../components/ProgressHeader.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import useTechnologies from "../hooks/useTechnologies.jsx";
 function Home() {
-    const {technologies, markAllCompleted, resetAll, randomNext} = useTechnologies();
+    const {technologies, markAllCompleted, resetAll, randomNext, bulkUpdateStatus} = useTechnologies();
     return (
         <div className="page">
             <ProgressHeader  technologies={technologies} />
@@ -12,6 +12,7 @@ function Home() {
                 onMarkAllCompleted={markAllCompleted}
                 onResetAll={resetAll}
                 onRandomNext={randomNext}
+                onBulkUpdate={bulkUpdateStatus}
             />
             <div className="home-content">
                 <h2>Добро пожаловать на мой первый сайт на React</h2>

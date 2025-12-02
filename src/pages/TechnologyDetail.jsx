@@ -1,14 +1,17 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import useTechnologies from '../hooks/useTechnologies';
+import Modal from '../components/Modal';
+import DeadlineForm from "../components/DeadlineForm.jsx";
 import './TechnologyDetail.css';
 
 function TechnologyDetail() {
     const { techId } = useParams();
     const navigate = useNavigate();
-    const { technologies, updateStatus, updateNotes } = useTechnologies();
+    const { technologies, updateStatus, updateNotes, updateDeadlineAndPriority } = useTechnologies();
     const technology = technologies.find(t => t.id === parseInt(techId));
     const [localNotes, setLocalNotes] = useState(technology?.notes || '');
+    const [showDeadlineModal, setShowDeadlineModal] = useState(false);
 
     useEffect(() => {
         if (technology) {
@@ -30,6 +33,17 @@ function TechnologyDetail() {
         }
     };
 
+    const handleDeadlineSave = (deadlineData) => {
+        if (technology) {
+            updateDeadlineAndPriority(technology.id, deadlineData.deadline, deadlineData.priority);
+        }
+        setShowDeadlineModal(false);
+    };
+
+    const handleDeadlineCancel = () => {
+        setShowDeadlineModal(false);
+    };
+
     if (!technology) {
         return (
             <div className="page">
@@ -39,6 +53,8 @@ function TechnologyDetail() {
             </div>
         );
     }
+
+    const formattedDeadline = technology.deadline ? new Date(technology.deadline).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'Не установлен';
 
     return (
         <div className="page">
@@ -75,6 +91,14 @@ function TechnologyDetail() {
                     </div>
                 </div>
                 <div className="detail-section">
+                    <h3>Сроки и приоритет</h3>
+                    <p><strong>Дедлайн:</strong> {formattedDeadline}</p>
+                    <p><strong>Приоритет:</strong> {technology.priority}</p>
+                    <button onClick={() => setShowDeadlineModal(true)} className="btn btn-secondary">
+                        Установить/Изменить
+                    </button>
+                </div>
+                <div className="detail-section">
                     <h3>Мои заметки</h3>
                     <textarea
                         value={localNotes}
@@ -87,6 +111,20 @@ function TechnologyDetail() {
                     </div>
                 </div>
             </div>
+            <Modal
+                isOpen={showDeadlineModal}
+                onClose={handleDeadlineCancel}
+                title="Установить срок и приоритет"
+            >
+                <DeadlineForm
+                    onSave={handleDeadlineSave}
+                    onCancel={handleDeadlineCancel}
+                    initialData={{
+                        deadline: technology.deadline,
+                        priority: technology.priority
+                    }}
+                />
+            </Modal>
         </div>
     );
 }
