@@ -39,7 +39,7 @@ function Statistics() {
             .sort((a, b) => {
                 const timeA = new Date() - new Date(a.updatedAt || a.createdAt);
                 const timeB = new Date() - new Date(b.updatedAt || b.createdAt);
-                return timeB - timeA; // Сортировка по убыванию
+                return timeB - timeA;
             })
             .slice(0, 5);
 

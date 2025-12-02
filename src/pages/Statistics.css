@@ -71,7 +71,7 @@
 .chart-segment-bar {
     height: 24px;
     border-radius: 4px 0 0 4px;
-    min-width: 0; /* Позволяет шкале сжиматься до 0% */
+    min-width: 0;
 }
 
 .chart-segment-completed { background-color: #4caf50; }

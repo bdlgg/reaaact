@@ -50,7 +50,6 @@
     color: white;
 }
 
-/* Адаптивность для мобильных */
 @media (max-width: 768px) {
     .main-navigation {
         flex-direction: column;

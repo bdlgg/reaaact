@@ -23,7 +23,7 @@ function Settings() {
     };
 
     const handleClearAll = () => {
-        setTechnologies([]); // Устанавливаем пустой массив
+        setTechnologies([]);
         setShowClearAllModal(false);
         alert('Все технологии удалены.');
     };

@@ -7,13 +7,9 @@ function TechnologyDetail() {
     const { techId } = useParams();
     const navigate = useNavigate();
     const { technologies, updateStatus, updateNotes } = useTechnologies();
-
-    // Найдем технологию по ID из URL среди текущих данных
     const technology = technologies.find(t => t.id === parseInt(techId));
-
     const [localNotes, setLocalNotes] = useState(technology?.notes || '');
 
-    // Обновляем локальные заметки, если данные из хука обновились
     useEffect(() => {
         if (technology) {
             setLocalNotes(technology.notes);
@@ -29,7 +25,6 @@ function TechnologyDetail() {
     const handleNotesChange = (e) => {
         const value = e.target.value;
         setLocalNotes(value);
-        // Обновляем заметки в глобальном состоянии при каждом изменении
         if (technology) {
             updateNotes(technology.id, value);
         }
