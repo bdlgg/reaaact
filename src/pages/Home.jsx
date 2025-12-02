@@ -14,7 +14,7 @@ function Home() {
                 onRandomNext={randomNext}
             />
             <div className="home-content">
-                <h2>Добро пожаловать на мой первый сайт на react</h2>
+                <h2>Добро пожаловать на мой первый сайт на React</h2>
                 <p>Здесь вы можете отслеживать мой прогресс</p>
                 <div className="home-links">
                     <Link to="/technologies" className="btn btn-primary">Просмотреть все технологии</Link>
