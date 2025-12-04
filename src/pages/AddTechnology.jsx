@@ -8,7 +8,7 @@ function AddTechnology() {
     const [description, setDescription] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { technologies, setTechnologies } = useTechnologies(); // Получаем сеттер из хука
+    const { technologies, setTechnologies } = useTechnologies();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -25,7 +25,7 @@ function AddTechnology() {
         setError('');
 
         const newTechnology = {
-            id: Math.max(...technologies.map(t => t.id), 0) + 1, // Простая генерация ID
+            id: Math.max(...technologies.map(t => t.id), 0) + 1,
             title: title.trim(),
             description: description.trim(),
             status: 'not-started',
@@ -33,7 +33,7 @@ function AddTechnology() {
         };
 
         setTechnologies([...technologies, newTechnology]);
-        navigate('/technologies'); // Перенаправляем на список после добавления
+        navigate('/technologies');
     };
 
     return (
