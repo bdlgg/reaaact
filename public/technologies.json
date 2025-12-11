@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "title": "React Components",
+    "description": "Изучение базовых компонентов React: функциональные и классовые компоненты, props, композиция.",
+    "category": "frontend",
+    "resources": [
+      "https://react.dev/learn/your-first-component",
+      "https://ru.reactjs.org/docs/components-and-props.html"
+    ]
+  },
+  {
+    "id": 2,
+    "title": "JSX Syntax",
+    "description": "Освоение синтаксиса JSX: встраивание выражений, атрибуты, условия и списки.",
+    "category": "frontend",
+    "resources": [
+      "https://react.dev/learn/writing-markup-with-jsx",
+      "https://ru.reactjs.org/docs/introducing-jsx.html"
+    ]
+  },
+  {
+    "id": 3,
+    "title": "State Management",
+    "description": "Работа с состоянием компонентов с помощью хука useState и принципы управления данными в React.",
+    "category": "frontend",
+    "resources": [
+      "https://react.dev/learn/state-a-components-memory",
+      "https://ru.reactjs.org/docs/hooks-state.html"
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Postgres",
+    "description": "Изучение работы с запросами в PostgreSQL: SELECT, JOIN, агрегатные функции, нормализация.",
+    "category": "database",
+    "resources": [
+      "https://www.postgresql.org/docs/",
+      "https://postgrespro.ru/docs/postgresql/15/tutorial"
+    ]
+  },
+  {
+    "id": 5,
+    "title": "useEffect",
+    "description": "Работа с хуком useEffect: синхронизация побочных эффектов, зависимости, очистка.",
+    "category": "frontend",
+    "resources": [
+      "https://react.dev/learn/synchronizing-with-effects",
+      "https://ru.reactjs.org/docs/hooks-effect.html"
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Express",
+    "description": "Создание серверов на Node.js с использованием фреймворка Express: маршруты, middleware, обработка запросов.",
+    "category": "backend",
+    "resources": [
+      "https://expressjs.com/ru/",
+      "https://metanit.com/web/nodejs/4.1.php"
+    ]
+  },
+  {
+    "id": 7,
+    "title": "React Router",
+    "description": "Навигация в одностраничных приложениях с помощью React Router.",
+    "category": "frontend",
+    "resources": [
+      "https://reactrouter.com/en/main",
+      "https://github.com/remix-run/react-router"
+    ]
+  },
+  {
+    "id": 8,
+    "title": "localStorage",
+    "description": "Хранение данных в браузере с помощью localStorage и интеграция с React.",
+    "category": "frontend",
+    "resources": [
+      "https://developer.mozilla.org/ru/docs/Web/API/Window/localStorage",
+      "https://learn.javascript.ru/localstorage"
+    ]
+  }
+]
