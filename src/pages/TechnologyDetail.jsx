@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import useTechnologies from '../hooks/useTechnologies';
 import Modal from '../components/Modal';
@@ -7,7 +7,6 @@ import './TechnologyDetail.css';
 
 function TechnologyDetail() {
     const { techId } = useParams();
-    const navigate = useNavigate();
     const { technologies, updateStatus, updateNotes, updateDeadlineAndPriority } = useTechnologies();
     const technology = technologies.find(t => t.id === parseInt(techId));
     const [localNotes, setLocalNotes] = useState(technology?.notes || '');
@@ -67,6 +66,20 @@ function TechnologyDetail() {
                     <h3>Описание</h3>
                     <p>{technology.description}</p>
                 </div>
+                {technology.resources && technology.resources.length > 0 && (
+                    <div className="detail-section">
+                        <h3>Полезные ресурсы</h3>
+                        <ul>
+                            {technology.resources.map((url, idx) => (
+                                <li key={idx}>
+                                    <a href={url} target="_blank" rel="noopener noreferrer" style={{color: '#45b7d1', textDecoration: 'underline'}}>
+                                        {url}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
                 <div className="detail-section">
                     <h3>Статус изучения</h3>
                     <div className="status-buttons">

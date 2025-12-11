@@ -1,6 +1,6 @@
 import './TechnologyCard.css'
 import TechnologyNotes from "./TechnologyNotes.jsx";
-function TechnologyCard({id, title, description, status, notes, onStatusChange, onNotesChange}) {
+function TechnologyCard({id, title, description, status, notes, resources, onStatusChange, onNotesChange}) {
     const nextStatus = (current) => {
         if (current === 'not-started') return 'in-progress';
         if (current === 'in-progress') return 'completed';
@@ -10,10 +10,22 @@ function TechnologyCard({id, title, description, status, notes, onStatusChange, 
         onStatusChange(nextStatus(status));
     }
     return (
-        <div className={`technology-card status-${status}`} onClick={handleClick}>
+        <div className={`technology-card status-${status}`}>
             <h3>{title}</h3>
             <p>{description}</p>
-            <div className="status-indicator">
+            {resources && resources.length > 0 && (
+                <div className="resources-links">
+                    <strong>Ресурсы:</strong>
+                    <ul>
+                        {resources.map((url, idx) => (
+                            <li key={idx}>
+                                <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+            <div className="status-indicator" onClick={handleClick}>
                 {status === "completed" && '✅ завершено'}
                 {status === "in-progress" && '⏳ в процессе'}
                 {status === "not-started" && '⚪ не начато'}

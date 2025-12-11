@@ -5,7 +5,7 @@ import Modal from '../components/Modal';
 import './Settings.css';
 
 function Settings() {
-    const { technologies, setTechnologies } = useTechnologies();
+    const { technologies, setTechnologies, setLocalData } = useTechnologies();
     const [showResetModal, setShowResetModal] = useState(false);
     const [showClearAllModal, setShowClearAllModal] = useState(false);
     // eslint-disable-next-line no-unused-vars
@@ -49,34 +49,44 @@ function Settings() {
     };
 
     const handleImport = (event) => {
+        setImportStatus('');
         const file = event.target.files[0];
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
                 const content = e.target.result;
-                const parsedData = JSON.parse(content)
+                const parsedData = JSON.parse(content);
+                let importedTechs = [];
                 if (parsedData && Array.isArray(parsedData.technologies)) {
-                    setTechnologies(parsedData.technologies);
-                    setImportStatus(`Успешно импортировано ${parsedData.technologies.length} технологий`);
-                    setShowImportModal(false);
+                    importedTechs = parsedData.technologies;
+                } else if (Array.isArray(parsedData)) {
+                    importedTechs = parsedData;
+                } else {
+                    throw new Error('Неверный формат данных. Ожидается объект с полем "technologies" или массив');
                 }
-                else if (Array.isArray(parsedData)){
-                    setTechnologies(parsedData);
-                    setImportStatus(`Успешно импортировано ${parsedData.length} технологий`);
-                    setShowImportModal(false);
-                }
-                else {
-                    throw new Error('Неверный формат данных. ожидается объект с полем "technologies" или массив');
-                }
-            }
-            catch (error) {
-                console.error('Ошибка импорта: ', error);
-                setImportStatus('Ошибка: неверный формат JSON или структуры данных')
+                const newLocalData = {};
+                importedTechs.forEach(tech => {
+                    if (tech.id != null) {
+                        newLocalData[tech.id] = {
+                            status: tech.status || 'not-started',
+                            notes: tech.notes || '',
+                            deadline: tech.deadline || '',
+                            priority: tech.priority || 'medium',
+                            createdAt: tech.createdAt || new Date().toISOString(),
+                            updatedAt: tech.updatedAt || new Date().toISOString(),
+                        };
+                    }
+                });
+                setLocalData(newLocalData);
+                setImportStatus(`Успешно импортировано ${importedTechs.length} технологий`);
+            } catch (error) {
+                console.error('Ошибка импорта:', error);
+                setImportStatus('Ошибка: неверный формат JSON или структуры данных');
             }
         };
         reader.onerror = () => {
-            setImportStatus('Ошибка: Не удалось прочитать файл.')
+            setImportStatus('Ошибка: Не удалось прочитать файл.');
         };
         reader.readAsText(file);
         event.target.value = '';
