@@ -1,24 +1,31 @@
 import { useState } from 'react';
+import { Box, Typography, Button, Alert, Paper } from '@mui/material';
+import { Delete, FileDownload, FileUpload, WbSunny, Brightness3 } from '@mui/icons-material';
 import useTechnologies from '../hooks/useTechnologies';
 import Modal from '../components/Modal';
-import './Settings.css';
+import NotificationSnackbar from '../components/NotificationSnackbar';
 
-function Settings() {
+function Settings({ darkMode, toggleDarkMode }) {
     const { setLocalData } = useTechnologies();
     const [showResetModal, setShowResetModal] = useState(false);
     const [showClearAllModal, setShowClearAllModal] = useState(false);
     const [importStatus, setImportStatus] = useState('');
+    const [notification, setNotification] = useState({ open: false, message: '', severity: 'info' });
+
+    const showNotification = (message, severity = 'info') => {
+        setNotification({ open: true, message, severity });
+    };
 
     const handleResetAll = () => {
         setShowResetModal(false);
-        alert('Функция сброса реализована на главной странице');
+        showNotification('Функция сброса реализована на главной странице', 'info');
     };
 
     const handleClearAll = () => {
         setLocalData({});
         localStorage.removeItem('techTrackerUserData');
         setShowClearAllModal(false);
-        alert('Все технологии удалены. Обновите страницу.');
+        showNotification('Все технологии удалены. Обновите страницу.', 'success');
     };
 
     const handleExport = () => {
@@ -42,12 +49,10 @@ function Settings() {
                 });
             }
         }
-
         const exportData = {
             exportedAt: new Date().toISOString(),
             technologies: technologies
         };
-
         const dataStr = JSON.stringify(exportData, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(dataBlob);
@@ -58,6 +63,7 @@ function Settings() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+        showNotification('Данные экспортированы', 'success');
     };
 
     const handleImport = (event) => {
@@ -104,32 +110,72 @@ function Settings() {
                 localStorage.setItem('techTrackerUserData', JSON.stringify(newLocalData));
                 setLocalData(newLocalData);
                 setImportStatus(`Успешно импортировано ${importedCount} технологий. Обновите страницу (F5).`);
+                showNotification(`Успешно импортировано ${importedCount} технологий`, 'success');
             } catch (error) {
                 console.error('Ошибка импорта:', error);
                 setImportStatus(`Ошибка: ${error.message}`);
+                showNotification(`Ошибка: ${error.message}`, 'error');
             }
         };
         reader.onerror = () => {
             setImportStatus('Ошибка: Не удалось прочитать файл.');
+            showNotification('Ошибка: Не удалось прочитать файл.', 'error');
         };
         reader.readAsText(file);
         event.target.value = '';
     };
+
     const handleImportClick = () => {
         document.getElementById('import-file-input').click();
     };
+
     return (
-        <div className="page">
-            <div className="page-header">
-                <h1>Настройки</h1>
-            </div>
-            <div className="settings-content">
-                <h2>Управление данными</h2>
-                <div className="settings-buttons">
-                    <button onClick={() => setShowResetModal(true)} className="btn btn-warning"> 🔄 Сбросить все статусы и заметки </button>
-                    <button onClick={() => setShowClearAllModal(true)} className="btn btn-danger">🗑️ Удалить все технологии</button>
-                    <button onClick={handleExport} className="btn btn-info">📤 Экспорт данных</button>
-                    <button onClick={handleImportClick} className="btn btn-info">📥 Импорт данных</button>
+        <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto', width: '100%' }}>
+            <Typography variant="h4" component="h1" gutterBottom>Настройки</Typography>
+
+            <Paper sx={{ p: 3, mb: 3, borderRadius: 2 }}>
+                <Typography variant="h6" gutterBottom>Управление данными</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 2 }}>
+                    <Button
+                        onClick={() => setShowResetModal(true)}
+                        startIcon={<Delete />}
+                        variant="outlined"
+                        color="warning"
+                    >
+                        Сбросить все статусы и заметки
+                    </Button>
+                    <Button
+                        onClick={() => setShowClearAllModal(true)}
+                        startIcon={<Delete />}
+                        variant="outlined"
+                        color="error"
+                    >
+                        Удалить все технологии
+                    </Button>
+                    <Button
+                        onClick={handleExport}
+                        startIcon={<FileDownload />}
+                        variant="outlined"
+                        color="info"
+                    >
+                        Экспорт данных
+                    </Button>
+                    <Button
+                        onClick={handleImportClick}
+                        startIcon={<FileUpload />}
+                        variant="outlined"
+                        color="info"
+                    >
+                        Импорт данных
+                    </Button>
+                    <Button
+                        onClick={toggleDarkMode}
+                        startIcon={darkMode ? <WbSunny /> : <Brightness3 />}
+                        variant="outlined"
+                        color={darkMode ? "warning" : "inherit"}
+                    >
+                        {darkMode ? 'Светлая тема' : 'Тёмная тема'}
+                    </Button>
                     <input
                         id="import-file-input"
                         type="file"
@@ -137,47 +183,50 @@ function Settings() {
                         onChange={handleImport}
                         style={{ display: 'none' }}
                     />
-                </div>
+                </Box>
                 {importStatus && (
-                    <div className={`status-message ${importStatus.startsWith('Ошибка') ? 'error' : 'success'}`}>
+                    <Alert severity={importStatus.startsWith('Ошибка') ? 'error' : 'success'} sx={{ mt: 2 }}>
                         {importStatus}
-                    </div>
+                    </Alert>
                 )}
-                <div className="import-hint">
-                    <p><strong>Важно:</strong> После импорта обновите страницу (F5)</p>
-                    <p><strong>Формат JSON файла:</strong></p>
-                    <ul>
-                        <li>Массив объектов с технологиями</li>
-                        <li>Обязательные поля: id, title</li>
-                        <li>Опциональные: description, category, resources, status, notes, deadline, priority</li>
-                    </ul>
-                </div>
-            </div>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+                    <strong>Важно:</strong> После импорта обновите страницу (F5)
+                </Typography>
+            </Paper>
+
             <Modal
                 isOpen={showResetModal}
                 onClose={() => setShowResetModal(false)}
                 title="Подтверждение сброса"
             >
-                <p>Вы уверены, что хотите сбросить статусы и заметки для всех технологий?</p>
-                <p>Это действие нельзя отменить.</p>
-                <div className="modal-actions">
-                    <button onClick={handleResetAll} className="btn btn-danger">Да, сбросить</button>
-                    <button onClick={() => setShowResetModal(false)} className="btn btn-secondary">Отмена</button>
-                </div>
+                <Typography>Вы уверены, что хотите сбросить статусы и заметки для всех технологий?</Typography>
+                <Typography color="text.secondary">Это действие нельзя отменить.</Typography>
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
+                    <Button onClick={handleResetAll} color="error">Да, сбросить</Button>
+                    <Button onClick={() => setShowResetModal(false)} color="secondary">Отмена</Button>
+                </Box>
             </Modal>
+
             <Modal
                 isOpen={showClearAllModal}
                 onClose={() => setShowClearAllModal(false)}
                 title="Подтверждение удаления"
             >
-                <p>Вы уверены, что хотите удалить ВСЕ технологии?</p>
-                <p>Все данные будут потеряны. Это действие нельзя отменить.</p>
-                <div className="modal-actions">
-                    <button onClick={handleClearAll} className="btn btn-danger">Да, удалить всё</button>
-                    <button onClick={() => setShowClearAllModal(false)} className="btn btn-secondary">Отмена</button>
-                </div>
+                <Typography>Вы уверены, что хотите удалить ВСЕ технологии?</Typography>
+                <Typography color="text.secondary">Все данные будут потеряны. Это действие нельзя отменить.</Typography>
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
+                    <Button onClick={handleClearAll} color="error">Да, удалить всё</Button>
+                    <Button onClick={() => setShowClearAllModal(false)} color="secondary">Отмена</Button>
+                </Box>
             </Modal>
-        </div>
+
+            <NotificationSnackbar
+                open={notification.open}
+                message={notification.message}
+                severity={notification.severity}
+                onClose={() => setNotification(prev => ({ ...prev, open: false }))}
+            />
+        </Box>
     );
 }
 

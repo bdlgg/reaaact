@@ -1,140 +1,83 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Box, Typography, Paper, Grid, Chip, CircularProgress, LinearProgress } from '@mui/material';
 import useTechnologies from '../hooks/useTechnologies';
-import './Statistics.css';
 
 function Statistics() {
     const { technologies } = useTechnologies();
-    const [stats, setStats] = useState({
-        total: 0,
-        completed: 0,
-        inProgress: 0,
-        notStarted: 0,
-        completionRate: 0,
-        statusDistribution: {},
-        topCompleted: [],
-        longestInProgress: []
-    });
 
-    useEffect(() => {
-        const total = technologies.length;
-        const completed = technologies.filter(t => t.status === 'completed').length;
-        const inProgress = technologies.filter(t => t.status === 'in-progress').length;
-        const notStarted = technologies.filter(t => t.status === 'not-started').length;
-        const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const stats = {
+        total: technologies.length,
+        completed: technologies.filter(t => t.status === 'completed').length,
+        inProgress: technologies.filter(t => t.status === 'in-progress').length,
+        notStarted: technologies.filter(t => t.status === 'not-started').length,
+    };
 
-        const statusDistribution = {
-            'completed': completed,
-            'in-progress': inProgress,
-            'not-started': notStarted
-        };
-
-        const topCompleted = [...technologies]
-            .filter(t => t.status === 'completed')
-            .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
-            .slice(0, 5);
-
-        const longestInProgress = [...technologies]
-            .filter(t => t.status === 'in-progress')
-            .sort((a, b) => {
-                const timeA = new Date() - new Date(a.updatedAt || a.createdAt);
-                const timeB = new Date() - new Date(b.updatedAt || b.createdAt);
-                return timeB - timeA;
-            })
-            .slice(0, 5);
-
-        setStats({
-            total,
-            completed,
-            inProgress,
-            notStarted,
-            completionRate,
-            statusDistribution,
-            topCompleted,
-            longestInProgress
-        });
-    }, [technologies]);
+    const completionPercentage = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
 
     return (
-        <div className="page">
-            <div className="page-header">
-                <h1>Статистика</h1>
-            </div>
-            <div className="stats-overview">
-                <div className="stat-card">
-                    <h3>Всего технологий</h3>
-                    <p className="stat-number">{stats.total}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Завершено</h3>
-                    <p className="stat-number">{stats.completed}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>В процессе</h3>
-                    <p className="stat-number">{stats.inProgress}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Не начато</h3>
-                    <p className="stat-number">{stats.notStarted}</p>
-                </div>
-                <div className="stat-card">
-                    <h3>Общий прогресс</h3>
-                    <p className="stat-number">{stats.completionRate}%</p>
-                </div>
-            </div>
+        <Box sx={{ p: 2, maxWidth: 1200, mx: 'auto', width: '100%' }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+                Статистика
+            </Typography>
 
-            <div className="progress-bar-container">
-                <div className="progress-bar" style={{ width: `${stats.completionRate}%` }}></div>
-            </div>
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                        <Typography variant="h6" color="text.secondary">Всего технологий</Typography>
+                        <Typography variant="h4" color="primary">{stats.total}</Typography>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                        <Typography variant="h6" color="text.secondary">Завершено</Typography>
+                        <Typography variant="h4" color="success.main">{stats.completed}</Typography>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                        <Typography variant="h6" color="text.secondary">В процессе</Typography>
+                        <Typography variant="h4" color="warning.main">{stats.inProgress}</Typography>
+                    </Paper>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                    <Paper sx={{ p: 2, textAlign: 'center', borderRadius: 2 }}>
+                        <Typography variant="h6" color="text.secondary">Не начато</Typography>
+                        <Typography variant="h4" color="text.primary">{stats.notStarted}</Typography>
+                    </Paper>
+                </Grid>
+            </Grid>
 
-            <div className="stats-section">
-                <h2>Распределение по статусам</h2>
-                <div className="distribution-chart">
-                    {Object.entries(stats.statusDistribution).map(([status, count]) => {
-                        const percentage = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
-                        let statusLabel = '';
-                        let colorClass = '';
-                        if (status === 'completed') { statusLabel = 'Завершено'; colorClass = 'chart-segment-completed'; }
-                        if (status === 'in-progress') { statusLabel = 'В процессе'; colorClass = 'chart-segment-in-progress'; }
-                        if (status === 'not-started') { statusLabel = 'Не начато'; colorClass = 'chart-segment-not-started'; }
-                        return (
-                            <div key={status} className="chart-segment">
-                                <div className={`chart-segment-bar ${colorClass}`} style={{ width: `${percentage}%` }}></div>
-                                <div className="chart-segment-label">
-                                    <span>{statusLabel}: {count} ({percentage}%)</span>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+            <Paper sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+                <Typography variant="h6" gutterBottom>Прогресс изучения</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <LinearProgress
+                        variant="determinate"
+                        value={completionPercentage}
+                        sx={{ flex: 1, height: 12, borderRadius: 5 }}
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                        {completionPercentage}%
+                    </Typography>
+                </Box>
+            </Paper>
 
-            {stats.topCompleted.length > 0 && (
-                <div className="stats-section">
-                    <h2>Недавно завершенные</h2>
-                    <ul>
-                        {stats.topCompleted.map(tech => (
-                            <li key={tech.id}>
-                                <Link to={`/technology/${tech.id}`}>{tech.title}</Link>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-
-            {stats.longestInProgress.length > 0 && (
-                <div className="stats-section">
-                    <h2>Дольше всего в процессе</h2>
-                    <ul>
-                        {stats.longestInProgress.map(tech => (
-                            <li key={tech.id}>
-                                <Link to={`/technology/${tech.id}`}>{tech.title}</Link>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-        </div>
+            <Paper sx={{ p: 3, borderRadius: 2 }}>
+                <Typography variant="h6" gutterBottom>Статусы по технологиям</Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    {technologies.map(tech => (
+                        <Chip
+                            key={tech.id}
+                            label={tech.title}
+                            color={
+                                tech.status === 'completed' ? 'success' :
+                                    tech.status === 'in-progress' ? 'warning' : 'default'
+                            }
+                            size="small"
+                            variant="outlined"
+                        />
+                    ))}
+                </Box>
+            </Paper>
+        </Box>
     );
 }
 

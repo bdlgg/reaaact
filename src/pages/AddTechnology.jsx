@@ -1,76 +1,92 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useTechnologies from '../hooks/useTechnologies';
-import './AddTechnology.css';
+import { Box, Typography, TextField, Button, Alert, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Save as SaveIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 
 function AddTechnology() {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [category, setCategory] = useState('frontend');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { technologies, setTechnologies } = useTechnologies();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        if (!title.trim()) {
-            setError('Название технологии обязательно.');
+        if (!title.trim() || !description.trim()) {
+            setError('Поля "Название" и "Описание" обязательны для заполнения.');
             return;
         }
-        if (!description.trim()) {
-            setError('Описание технологии обязательно.');
-            return;
-        }
-
-        setError('');
-
-        const newTechnology = {
-            id: Math.max(...technologies.map(t => t.id), 0) + 1,
-            title: title.trim(),
-            description: description.trim(),
-            status: 'not-started',
-            notes: ''
-        };
-
-        setTechnologies([...technologies, newTechnology]);
+        alert('Технологии не добавляются в API. Перейдите в "Все технологии", чтобы увидеть список.');
         navigate('/technologies');
     };
 
     return (
-        <div className="page">
-            <div className="page-header">
-                <h1>Добавить новую технологию</h1>
-            </div>
-            <form className="add-technology-form" onSubmit={handleSubmit}>
-                {error && <div className="error-message">{error}</div>}
-                <div className="form-group">
-                    <label htmlFor="title">Название:</label>
-                    <input
-                        id="title"
-                        type="text"
+        <Box sx={{ p: 2, maxWidth: 600, mx: 'auto' }}>
+            <Typography variant="h4" component="h1" gutterBottom>
+                Добавить новую технологию
+            </Typography>
+
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+            )}
+
+            <Paper sx={{ p: 3, borderRadius: 2 }}>
+                <form onSubmit={handleSubmit}>
+                    <TextField
+                        label="Название"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Например, React Router"
+                        fullWidth
                         required
+                        margin="normal"
+                        autoFocus
                     />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="description">Описание:</label>
-                    <textarea
-                        id="description"
+                    <TextField
+                        label="Описание"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Краткое описание технологии..."
-                        rows="4"
+                        fullWidth
+                        multiline
+                        rows={4}
                         required
+                        margin="normal"
                     />
-                </div>
-                <div className="form-actions">
-                    <button type="submit" className="btn btn-primary">Сохранить</button>
-                    <button type="button" onClick={() => navigate('/technologies')} className="btn btn-secondary">Отмена</button>
-                </div>
-            </form>
-        </div>
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel>Категория</InputLabel>
+                        <Select
+                            value={category}
+                            label="Категория"
+                            onChange={(e) => setCategory(e.target.value)}
+                        >
+                            <MenuItem value="frontend">Frontend</MenuItem>
+                            <MenuItem value="backend">Backend</MenuItem>
+                            <MenuItem value="database">Database</MenuItem>
+                            <MenuItem value="devops">DevOps</MenuItem>
+                            <MenuItem value="other">Другое</MenuItem>
+                        </Select>
+                    </FormControl>
+                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 3 }}>
+                        <Button
+                            startIcon={<ArrowBackIcon />}
+                            onClick={() => navigate('/technologies')}
+                            color="secondary"
+                        >
+                            Назад
+                        </Button>
+                        <Button
+                            startIcon={<SaveIcon />}
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                        >
+                            Сохранить
+                        </Button>
+                    </Box>
+                </form>
+            </Paper>
+        </Box>
     );
 }
 

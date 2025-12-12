@@ -1,24 +1,45 @@
-import './Modal.css';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Box } from '@mui/material';
+import { Close as CloseIcon } from '@mui/icons-material';
 
-function Modal({isOpen, onClose, title, children}) {
-    if (!isOpen) {
-        return null;
-    }
-    const handleBackgroundClick = (event) => {
-        if (event.target === event.currentTarget) {
-            onClose()
-        }
-    };
+function Modal({ isOpen, onClose, title, children }) {
     return (
-        <div className="modal-background" onClick={handleBackgroundClick}>
-            <div className="modal-window">
-                <div className="modal-header">
-                    <h2>{title}</h2>
-                    <button className="close-button" onClick={onClose}>×</button>
-                </div>
-                <div className="modal-content">{children}</div>
-            </div>
-        </div>
+        <Dialog
+            open={isOpen}
+            onClose={onClose}
+            maxWidth="sm"
+            fullWidth
+            PaperProps={{
+                sx: {
+                    borderRadius: 2,
+                    p: 2,
+                },
+            }}
+        >
+            <DialogTitle
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    pb: 1,
+                }}
+            >
+                {title}
+                <IconButton onClick={onClose} size="small">
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
+            <DialogContent>
+                <Box sx={{ py: 1 }}>
+                    {children}
+                </Box>
+            </DialogContent>
+            {children && !children.type?.name?.includes('DeadlineForm') && (
+                <DialogActions>
+                    <Button onClick={onClose} color="secondary">Закрыть</Button>
+                </DialogActions>
+            )}
+        </Dialog>
     );
 }
+
 export default Modal;

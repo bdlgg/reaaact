@@ -1,12 +1,15 @@
-import './TechnologyCard.css';
 import { useState } from "react";
-import Modal from './Modal';
+import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, List, ListItem, ListItemButton, ListItemText, Checkbox } from "@mui/material";
+import { CheckCircle, Delete, Shuffle, FileDownload, FileUpload } from "@mui/icons-material";
+import useTechnologies from '../hooks/useTechnologies';
 
-function QuickActions({onMarkAllCompleted, onResetAll, onRandomNext, technologies, onBulkUpdate}) {
+function QuickActions({ technologies }) {
+    const { markAllCompleted, resetAll, randomNext, bulkUpdateStatus } = useTechnologies();
     const [showExportModal, setShowExportModal] = useState(false);
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [newStatusForSelected, setNewStatusForSelected] = useState('not-started');
     const [showBulkModal, setShowBulkModal] = useState(false);
+
     const handleExport = () => {
         const exportData = {
             exportedAt: new Date().toISOString(),
@@ -34,12 +37,12 @@ function QuickActions({onMarkAllCompleted, onResetAll, onRandomNext, technologie
             newSelected.add(id);
         }
         setSelectedIds(newSelected);
-    }
+    };
 
     const handleApplyToSelected = () => {
         if (selectedIds.size === 0) return;
         const idsToUpdate = Array.from(selectedIds);
-        onBulkUpdate(idsToUpdate, newStatusForSelected);
+        bulkUpdateStatus(idsToUpdate, newStatusForSelected);
         setSelectedIds(new Set());
         setShowBulkModal(false);
     };
@@ -47,73 +50,82 @@ function QuickActions({onMarkAllCompleted, onResetAll, onRandomNext, technologie
     const isApplyDisabled = selectedIds.size === 0;
 
     return (
-        <div className="quick-actions">
-            <h3>Быстрые действия</h3>
-            <div className="action-buttons">
-                <button onClick={onMarkAllCompleted} className="btn btn-success">
-                    ✅ Отметить все как выполненные
-                </button>
-                <button onClick={onResetAll} className="btn btn-warning">
-                    🔄 Сбросить все статусы
-                </button>
-                <button onClick={onRandomNext} className="btn btn-random">
-                    🎲 Случайный выбор следующей
-                </button>
-                <button onClick={handleExport} className="btn btn-info">
-                    📤 Экспорт данных
-                </button>
-                <button onClick={() => setShowBulkModal(true)} className="btn-secondary">
-                    📋 Массовое редактирование
-                </button>
-            </div>
-            <Modal
-                isOpen={showBulkModal}
-                onClose={() => {setShowBulkModal(false); setSelectedIds(new Set());}}
-                title="Массовое редактирование статусов"
-            >
-                <div className="bulk-edit-modal-content">
-                    <div className="bulk-controls">
-                        <button onClick={handleSelectAll} className="btn btn-secondary">
+        <Box sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: 'background.paper', boxShadow: 1 }}>
+            <Typography variant="h6" gutterBottom>Быстрые действия</Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                <Button onClick={markAllCompleted} startIcon={<CheckCircle />} variant="outlined" color="success">
+                    Отметить все как выполненные
+                </Button>
+                <Button onClick={resetAll} startIcon={<Delete />} variant="outlined" color="warning">
+                    Сбросить все статусы
+                </Button>
+                <Button onClick={randomNext} startIcon={<Shuffle />} variant="outlined" color="info">
+                    Случайный выбор
+                </Button>
+                <Button onClick={handleExport} startIcon={<FileDownload />} variant="outlined" color="info">
+                    Экспорт данных
+                </Button>
+                <Button onClick={() => setShowBulkModal(true)} startIcon={<FileUpload />} variant="outlined" color="secondary">
+                    Массовое редактирование
+                </Button>
+            </Box>
+
+            <Dialog open={showBulkModal} onClose={() => {setShowBulkModal(false); setSelectedIds(new Set());}}>
+                <DialogTitle>Массовое редактирование статусов</DialogTitle>
+                <DialogContent>
+                    <Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center' }}>
+                        <Button onClick={handleSelectAll} variant="outlined" size="small">
                             {selectedIds.size === technologies.length ? 'Снять выделение' : 'Выделить все'}
-                        </button>
-                        <select
-                            value={newStatusForSelected}
-                            onChange={(e) => setNewStatusForSelected(e.target.value)}
-                            className="status-select"
-                            aria-label="Выберите новые статус для выделенных элементов">
-                            <option value="not-started">Не начато</option>
-                            <option value="in-progress">В процессе</option>
-                            <option value="completed">Завершено</option>
-                        </select>
-                        <button onClick={handleApplyToSelected} className="btn btn-primary" disabled={isApplyDisabled} aria-disabled={isApplyDisabled}>
-                            Применить к выбранным ({selectedIds.size})
-                        </button>
-                    </div>
-                    <div className="technologies-to-edit">
+                        </Button>
+                        <FormControl fullWidth>
+                            <InputLabel>Новый статус</InputLabel>
+                            <Select
+                                value={newStatusForSelected}
+                                label="Новый статус"
+                                onChange={(e) => setNewStatusForSelected(e.target.value)}
+                            >
+                                <MenuItem value="not-started">Не начато</MenuItem>
+                                <MenuItem value="in-progress">В процессе</MenuItem>
+                                <MenuItem value="completed">Завершено</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <Button onClick={handleApplyToSelected} variant="contained" disabled={isApplyDisabled}>
+                            Применить ({selectedIds.size})
+                        </Button>
+                    </Box>
+                    <List dense>
                         {technologies.map(tech => (
-                            <div key={tech.id} className="tech-item">
-                                <label className="tech-checkbox-label">
-                                    <input
-                                        type="checkbox"
+                            <ListItem key={tech.id} disablePadding>
+                                <ListItemButton role={undefined} onClick={() => handleSelectOne(tech.id)} dense>
+                                    <Checkbox
+                                        edge="start"
                                         checked={selectedIds.has(tech.id)}
-                                        onChange={() => handleSelectOne(tech.id)}
-                                        aria-label={`Выбрать ${tech.title} для массового редактирования`}/>
-                                    <span className="tech-title">{tech.title}</span>
-                                </label>
-                            </div>
+                                        tabIndex={-1}
+                                        disableRipple
+                                    />
+                                    <ListItemText primary={tech.title} />
+                                </ListItemButton>
+                            </ListItem>
                         ))}
-                    </div>
-                </div>
-            </Modal>
-            <Modal
-                isOpen={showExportModal}
-                onClose={() => setShowExportModal(false)}
-                title="Экспорт данных"
-            >
-                <p>данные успешно подготовлены для экспорта</p>
-                <p>проверьте консоль разработчика для просмотра данных</p>
-            </Modal>
-        </div>
-    )
+                    </List>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowBulkModal(false)}>Закрыть</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={showExportModal} onClose={() => setShowExportModal(false)}>
+                <DialogTitle>Экспорт данных</DialogTitle>
+                <DialogContent>
+                    <Typography>Данные успешно подготовлены для экспорта</Typography>
+                    <Typography variant="caption" color="text.secondary">Проверьте консоль разработчика</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowExportModal(false)}>Закрыть</Button>
+                </DialogActions>
+            </Dialog>
+        </Box>
+    );
 }
+
 export default QuickActions;

@@ -1,11 +1,13 @@
-import {Link} from "react-router-dom";
-import {useState, useEffect, useRef} from "react";
+import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { Box, Typography, TextField, Button, Chip, Paper, Grid, InputAdornment, Alert } from '@mui/material';
+import { Search as SearchIcon, Add as AddIcon } from '@mui/icons-material';
 import useTechnologies from "../hooks/useTechnologies.jsx";
 import QuickActions from "../components/QuickActions.jsx";
 import TechnologyCard from "../components/TechnologyCard.jsx";
-import './TechnologyList.css';
+
 function TechnologyList() {
-    const {technologies, loading, error, refetch, updateStatus, markAllCompleted, resetAll, randomNext, bulkUpdateStatus } = useTechnologies();
+    const { technologies, loading, error, refetch, updateStatus, updateNotes } = useTechnologies();
     const [filter, setFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -15,7 +17,7 @@ function TechnologyList() {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
             setDebouncedQuery(searchQuery);
-        }, 700);
+        }, 400);
         return () => clearTimeout(timeoutRef.current);
     }, [searchQuery]);
 
@@ -30,88 +32,125 @@ function TechnologyList() {
 
     if (loading) {
         return (
-            <div className="page">
-                <div className="loading">
-                    <div className="spinner"></div>
-                    <p>Загрузка технологий...</p>
-                </div>
-            </div>
-        )
+            <Box sx={{ p: 3, textAlign: 'center' }}>
+                <Typography variant="h6">Загрузка технологий...</Typography>
+            </Box>
+        );
     }
 
     if (error) {
         return (
-            <div className="page">
-                <div className="error-state">
-                    <h2>Ошибка загрузки</h2>
-                    <p>{error}</p>
-                    <button onClick={refetch} className="btn btn-primary">Попробовать снова</button>
-                </div>
-            </div>
-        )
+            <Box sx={{ p: 3 }}>
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Ошибка загрузки: {error}
+                </Alert>
+                <Button onClick={refetch} variant="contained" color="primary">Попробовать снова</Button>
+            </Box>
+        );
     }
-    return (
-        <div className="page">
-            <div className="page-header">
-                <h1>Все технологии</h1>
-                <Link to="/add-technology" className="btn btn-primary">+ Добавить технологию</Link>
-            </div>
-            <QuickActions
-                technologies={technologies}
-                onMarkAllCompleted={markAllCompleted}
-                onResetAll={resetAll}
-                onRandomNext={randomNext}
-                onBulkUpdate={bulkUpdateStatus}
-            />
-            <div className="search-box">
-                <input
-                    type="text"
-                    placeholder="Поиск технологий..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}/>
-                <span className="search-count">Найдено: {filteredTechnologies.length}</span>
-            </div>
-            <div className="filter-buttons">
-                <button className={filter === "all" ? "active" : ""} onClick={() => setFilter('all')}>Все</button>
-                <button className={filter === 'not-started' ? 'active' : ''} onClick={() => setFilter('not-started')}>Не начато</button>
-                <button className={filter === 'in-progress' ? 'active' : ''} onClick={() => setFilter('in-progress')}>В процессе</button>
-                <button className={filter === 'completed' ? 'active' : ''} onClick={() => setFilter('completed')}>Завершено</button>
-            </div>
 
-            <div className="technologies-grid">
+    return (
+        <Box sx={{ p: 2, maxWidth: '1200px', mx: 'auto', width: '100%' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
+                <Typography variant="h4" component="h1">Все технологии</Typography>
+                <Button
+                    component={Link}
+                    to="/add-technology"
+                    variant="contained"
+                    color="primary"
+                    startIcon={<AddIcon />}
+                >
+                    Добавить технологию
+                </Button>
+            </Box>
+
+            <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+                <TextField
+                    fullWidth
+                    label="Поиск технологий"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon />
+                            </InputAdornment>
+                        ),
+                    }}
+                    variant="outlined"
+                    sx={{ mb: 2 }}
+                />
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    <Chip
+                        label="Все"
+                        onClick={() => setFilter('all')}
+                        variant={filter === 'all' ? 'filled' : 'outlined'}
+                        color="default"
+                        clickable
+                    />
+                    <Chip
+                        label="Не начато"
+                        onClick={() => setFilter('not-started')}
+                        variant={filter === 'not-started' ? 'filled' : 'outlined'}
+                        color="default"
+                        clickable
+                    />
+                    <Chip
+                        label="В процессе"
+                        onClick={() => setFilter('in-progress')}
+                        variant={filter === 'in-progress' ? 'filled' : 'outlined'}
+                        color="warning"
+                        clickable
+                    />
+                    <Chip
+                        label="Завершено"
+                        onClick={() => setFilter('completed')}
+                        variant={filter === 'completed' ? 'filled' : 'outlined'}
+                        color="success"
+                        clickable
+                    />
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                    Найдено: {filteredTechnologies.length}
+                </Typography>
+            </Paper>
+
+            <QuickActions technologies={technologies} />
+
+            <Grid container spacing={3} sx={{ mt: 1 }}>
                 {filteredTechnologies.map(tech => (
-                    <div key={tech.id} className="technology-item">
-                        <h3>{tech.title}</h3>
-                        <p>{tech.description}</p>
-                        <div className="technology-meta">
-                            <span
-                                className={`status status-${tech.status}`}
-                                onClick={() => {
-                                    let newStatus = 'not-started';
-                                    if (tech.status === 'not-started') newStatus = 'in-progress';
-                                    else if (tech.status === 'in-progress') newStatus = 'completed';
-                                    else if (tech.status === 'completed') newStatus = 'not-started';
-                                    updateStatus(tech.id, newStatus)
-                                }}
-                                style={{ cursor: 'pointer' }}
-                            >
-                                {tech.status === "completed" && '✅ завершено'}
-                                {tech.status === "in-progress" && '⏳ в процессе'}
-                                {tech.status === "not-started" && '⚪ не начато'}
-                            </span>
-                            <Link to={`/technology/${tech.id}`} className="btn btn-link">Подробнее →</Link>
-                        </div>
-                    </div>
+                    <Grid item xs={12} sm={6} md={4} key={tech.id}>
+                        <TechnologyCard
+                            id={tech.id}
+                            title={tech.title}
+                            description={tech.description}
+                            status={tech.status}
+                            notes={tech.notes}
+                            resources={tech.resources}
+                            onStatusChange={(newStatus) => updateStatus(tech.id, newStatus)}
+                            onNotesChange={(techId, newNotes) => updateNotes(techId, newNotes)}
+
+                        />
+                    </Grid>
                 ))}
-            </div>
+            </Grid>
 
             {filteredTechnologies.length === 0 && (
-                <div className="empty-state">
-                    <p>Технологий пока нет</p>
-                    <Link to="/add-technology" className="btn btn-primary">Добавить первую технологию</Link>
-                </div>
+                <Box sx={{ textAlign: 'center', p: 4 }}>
+                    <Typography variant="h6" color="text.secondary">Технологий не найдено</Typography>
+                    <Button
+                        component={Link}
+                        to="/add-technology"
+                        variant="contained"
+                        color="primary"
+                        sx={{ mt: 2 }}
+                    >
+                        Добавить первую технологию
+                    </Button>
+                </Box>
             )}
-        </div>
+        </Box>
     );
 }
+
 export default TechnologyList;
