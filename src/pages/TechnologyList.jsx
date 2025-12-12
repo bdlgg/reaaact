@@ -1,10 +1,11 @@
 import {Link} from "react-router-dom";
 import {useState, useEffect, useRef} from "react";
 import useTechnologies from "../hooks/useTechnologies.jsx";
+import QuickActions from "../components/QuickActions.jsx";
 import TechnologyCard from "../components/TechnologyCard.jsx";
 import './TechnologyList.css';
 function TechnologyList() {
-    const {technologies, loading, error, refetch, updateStatus } = useTechnologies();
+    const {technologies, loading, error, refetch, updateStatus, markAllCompleted, resetAll, randomNext, bulkUpdateStatus } = useTechnologies();
     const [filter, setFilter] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -14,7 +15,7 @@ function TechnologyList() {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         timeoutRef.current = setTimeout(() => {
             setDebouncedQuery(searchQuery);
-        }, 400);
+        }, 700);
         return () => clearTimeout(timeoutRef.current);
     }, [searchQuery]);
 
@@ -55,6 +56,13 @@ function TechnologyList() {
                 <h1>Все технологии</h1>
                 <Link to="/add-technology" className="btn btn-primary">+ Добавить технологию</Link>
             </div>
+            <QuickActions
+                technologies={technologies}
+                onMarkAllCompleted={markAllCompleted}
+                onResetAll={resetAll}
+                onRandomNext={randomNext}
+                onBulkUpdate={bulkUpdateStatus}
+            />
             <div className="search-box">
                 <input
                     type="text"

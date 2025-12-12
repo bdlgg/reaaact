@@ -171,3 +171,98 @@
     font-size: 1.2em;
     margin-bottom: 20px;
 }
+
+.quick-actions {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quick-actions h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.2em;
+}
+
+.action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.action-buttons button {
+    padding: 8px 16px;
+    font-size: 0.9em;
+}
+
+.btn-success {
+    background: #4caf50;
+    color: white;
+}
+
+.btn-random {
+    background: #9c27b0;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-success:hover,
+.btn-random:hover,
+.btn-secondary:hover {
+    opacity: 0.9;
+}
+
+.bulk-edit-modal-content {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.bulk-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.status-select {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.technologies-to-edit {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tech-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+}
+
+.tech-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.tech-title {
+    font-size: 0.95em;
+    color: #333;
+}
+
+.tech-checkbox-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+}
