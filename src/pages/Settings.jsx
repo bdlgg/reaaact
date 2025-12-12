@@ -1,41 +1,53 @@
 import { useState } from 'react';
-import {Link} from 'react-router-dom';
 import useTechnologies from '../hooks/useTechnologies';
 import Modal from '../components/Modal';
 import './Settings.css';
 
 function Settings() {
-    const { technologies, setTechnologies, setLocalData } = useTechnologies();
+    const { setLocalData } = useTechnologies();
     const [showResetModal, setShowResetModal] = useState(false);
     const [showClearAllModal, setShowClearAllModal] = useState(false);
-    // eslint-disable-next-line no-unused-vars
-    const [showImportModal, setShowImportModal] = useState(false);
     const [importStatus, setImportStatus] = useState('');
 
     const handleResetAll = () => {
-        const resetTechnologies = technologies.map(tech => ({
-            ...tech,
-            status: 'not-started',
-            notes: '',
-            deadline: '',
-            priority: 'medium'
-        }));
-        setTechnologies(resetTechnologies);
         setShowResetModal(false);
-        alert('Все статусы и заметки сброшены.');
+        alert('Функция сброса реализована на главной странице');
     };
 
     const handleClearAll = () => {
-        setTechnologies([]);
+        setLocalData({});
+        localStorage.removeItem('techTrackerUserData');
         setShowClearAllModal(false);
-        alert('Все технологии удалены.');
+        alert('Все технологии удалены. Обновите страницу.');
     };
 
     const handleExport = () => {
+        const savedData = localStorage.getItem('techTrackerUserData');
+        const localData = savedData ? JSON.parse(savedData) : {};
+        const technologies = [];
+        for (const [id, data] of Object.entries(localData)) {
+            if (data && data.title) {
+                technologies.push({
+                    id: parseInt(id),
+                    title: data.title,
+                    description: data.description || '',
+                    category: data.category || 'other',
+                    resources: data.resources || [],
+                    status: data.status || 'not-started',
+                    notes: data.notes || '',
+                    deadline: data.deadline || '',
+                    priority: data.priority || 'medium',
+                    createdAt: data.createdAt || new Date().toISOString(),
+                    updatedAt: data.updatedAt || new Date().toISOString(),
+                });
+            }
+        }
+
         const exportData = {
             exportedAt: new Date().toISOString(),
             technologies: technologies
         };
+
         const dataStr = JSON.stringify(exportData, null, 2);
         const dataBlob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(dataBlob);
@@ -65,24 +77,36 @@ function Settings() {
                 } else {
                     throw new Error('Неверный формат данных. Ожидается объект с полем "technologies" или массив');
                 }
+                if (importedTechs.length === 0) {
+                    setImportStatus('В файле нет данных для импорта');
+                    return;
+                }
                 const newLocalData = {};
+                const now = new Date().toISOString();
+                let importedCount = 0;
                 importedTechs.forEach(tech => {
-                    if (tech.id != null) {
+                    if (tech.id != null && tech.title) {
                         newLocalData[tech.id] = {
+                            title: tech.title,
+                            description: tech.description || '',
+                            category: tech.category || 'other',
+                            resources: tech.resources || [],
                             status: tech.status || 'not-started',
                             notes: tech.notes || '',
                             deadline: tech.deadline || '',
                             priority: tech.priority || 'medium',
-                            createdAt: tech.createdAt || new Date().toISOString(),
-                            updatedAt: tech.updatedAt || new Date().toISOString(),
+                            createdAt: tech.createdAt || now,
+                            updatedAt: tech.updatedAt || now,
                         };
+                        importedCount++;
                     }
                 });
+                localStorage.setItem('techTrackerUserData', JSON.stringify(newLocalData));
                 setLocalData(newLocalData);
-                setImportStatus(`Успешно импортировано ${importedTechs.length} технологий`);
+                setImportStatus(`Успешно импортировано ${importedCount} технологий. Обновите страницу (F5).`);
             } catch (error) {
                 console.error('Ошибка импорта:', error);
-                setImportStatus('Ошибка: неверный формат JSON или структуры данных');
+                setImportStatus(`Ошибка: ${error.message}`);
             }
         };
         reader.onerror = () => {
@@ -91,11 +115,9 @@ function Settings() {
         reader.readAsText(file);
         event.target.value = '';
     };
-
     const handleImportClick = () => {
         document.getElementById('import-file-input').click();
     };
-
     return (
         <div className="page">
             <div className="page-header">
@@ -121,6 +143,15 @@ function Settings() {
                         {importStatus}
                     </div>
                 )}
+                <div className="import-hint">
+                    <p><strong>Важно:</strong> После импорта обновите страницу (F5)</p>
+                    <p><strong>Формат JSON файла:</strong></p>
+                    <ul>
+                        <li>Массив объектов с технологиями</li>
+                        <li>Обязательные поля: id, title</li>
+                        <li>Опциональные: description, category, resources, status, notes, deadline, priority</li>
+                    </ul>
+                </div>
             </div>
             <Modal
                 isOpen={showResetModal}

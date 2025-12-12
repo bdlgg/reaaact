@@ -20,8 +20,32 @@ function useTechnologies() {
             setLoading(false);
             return;
         }
+        const now = new Date().toISOString();
+        const userTechs = [];
+        for (const [id, data] of Object.entries(localData)) {
+            if (data && data.title) {
+                userTechs.push({
+                    id: parseInt(id),
+                    title: data.title,
+                    description: data.description || '',
+                    category: data.category || 'other',
+                    resources: data.resources || [],
+                    status: data.status || 'not-started',
+                    notes: data.notes || '',
+                    deadline: data.deadline || '',
+                    priority: data.priority || 'medium',
+                    createdAt: data.createdAt || now,
+                    updatedAt: data.updatedAt || now,
+                });
+            }
+        }
+        if (userTechs.length > 0) {
+            setTechnologies(userTechs);
+            setError(null);
+            setLoading(false);
+            return;
+        }
         if (apiTechnologies) {
-            const now = new Date().toISOString();
             const merged = apiTechnologies.map(apiTech => {
                 const local = localData[apiTech.id] || {};
                 return {
@@ -41,19 +65,22 @@ function useTechnologies() {
             setTechnologies(merged);
             setError(null);
         }
+
         setLoading(false);
     }, [apiTechnologies, apiError, apiLoading, localData])
 
     const updateLocalField = (techId, field, value) => {
         setLocalData(prev => {
-            const newLocal = {
-                ...prev, [techId]: {
-                    ...prev[techId],
+            const current = prev[techId] || {};
+            return {
+                ...prev,
+                [techId]: {
+                    ...current,
                     [field]: value,
                     updatedAt: new Date().toISOString(),
+                    createdAt: current.createdAt || new Date().toISOString(),
                 },
             }
-            return newLocal;
         })
     }
 
@@ -66,23 +93,30 @@ function useTechnologies() {
     };
 
     const updateDeadlineAndPriority = (techId, deadline, priority) => {
-        setLocalData(prev => ({
-            ...prev, [techId]: {
-                ...prev[techId],
-                deadline,
-                priority,
-                updatedAt: new Date().toISOString(),
-            },
-        }));
+        setLocalData(prev => {
+            const current = prev[techId] || {};
+            return {
+                ...prev,
+                [techId]: {
+                    ...current,
+                    deadline,
+                    priority,
+                    updatedAt: new Date().toISOString(),
+                    createdAt: current.createdAt || new Date().toISOString(),
+                },
+            }
+        });
     };
 
     const markAllCompleted = () => {
         const newLocal = {...localData};
         technologies.forEach((tech) => {
+            const current = newLocal[tech.id] || {};
             newLocal[tech.id] = {
-                ...newLocal[tech.id],
+                ...current,
                 status: 'completed',
                 updatedAt: new Date().toISOString(),
+                createdAt: current.createdAt || new Date().toISOString(),
             };
         });
         setLocalData(newLocal);
@@ -90,14 +124,15 @@ function useTechnologies() {
 
     const resetAll = () => {
         const newLocal = {};
+        const now = new Date().toISOString();
         technologies.forEach(tech => {
             newLocal[tech.id] = {
                 status: 'not-started',
                 notes: '',
                 deadline: '',
                 priority: 'medium',
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                createdAt: tech.createdAt || now,
+                updatedAt: now,
             }
         })
         setLocalData(newLocal);
@@ -112,18 +147,33 @@ function useTechnologies() {
 
     const bulkUpdateStatus = (techIds, newStatus) => {
         const newLocal = {...localData};
+        const now = new Date().toISOString();
         techIds.forEach(id => {
+            const current = newLocal[id] || {};
             newLocal[id] = {
-                ...newLocal[id],
+                ...current,
                 status: newStatus,
-                updatedAt: new Date().toISOString(),
+                updatedAt: now,
+                createdAt: current.createdAt || now,
             }
         })
         setLocalData(newLocal);
     };
 
     return {
-        technologies, loading, error, updateStatus, updateNotes, updateDeadlineAndPriority, markAllCompleted, resetAll, randomNext, bulkUpdateStatus, refetch, setTechnologies, setLocalData
+        technologies,
+        loading,
+        error,
+        updateStatus,
+        updateNotes,
+        updateDeadlineAndPriority,
+        markAllCompleted,
+        resetAll,
+        randomNext,
+        bulkUpdateStatus,
+        refetch,
+        setTechnologies,
+        setLocalData
     };
 }
 
