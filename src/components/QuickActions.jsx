@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, List, ListItem, ListItemButton, ListItemText, Checkbox } from "@mui/material";
 import { CheckCircle, Delete, Shuffle, FileDownload, FileUpload } from "@mui/icons-material";
-import useTechnologies from '../hooks/useTechnologies';
 
-function QuickActions({ technologies }) {
-    const { markAllCompleted, resetAll, randomNext, bulkUpdateStatus } = useTechnologies();
+function QuickActions({
+                          technologies,
+                          onMarkAllCompleted,
+                          onResetAll,
+                          onRandomNext,
+                          onBulkUpdate
+                      }) {
     const [showExportModal, setShowExportModal] = useState(false);
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [newStatusForSelected, setNewStatusForSelected] = useState('not-started');
@@ -42,7 +46,8 @@ function QuickActions({ technologies }) {
     const handleApplyToSelected = () => {
         if (selectedIds.size === 0) return;
         const idsToUpdate = Array.from(selectedIds);
-        bulkUpdateStatus(idsToUpdate, newStatusForSelected);
+        // ВЫЗЫВАЕМ ПЕРЕДАННУЮ ФУНКЦИЮ
+        onBulkUpdate(idsToUpdate, newStatusForSelected);
         setSelectedIds(new Set());
         setShowBulkModal(false);
     };
@@ -53,19 +58,44 @@ function QuickActions({ technologies }) {
         <Box sx={{ p: 2, mb: 2, borderRadius: 2, bgcolor: 'background.paper', boxShadow: 1 }}>
             <Typography variant="h6" gutterBottom>Быстрые действия</Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                <Button onClick={markAllCompleted} startIcon={<CheckCircle />} variant="outlined" color="success">
+                <Button
+                    onClick={onMarkAllCompleted} // ИСПОЛЬЗУЕМ ПЕРЕДАННУЮ ФУНКЦИЮ
+                    startIcon={<CheckCircle />}
+                    variant="outlined"
+                    color="success"
+                >
                     Отметить все как выполненные
                 </Button>
-                <Button onClick={resetAll} startIcon={<Delete />} variant="outlined" color="warning">
+                <Button
+                    onClick={onResetAll} // ИСПОЛЬЗУЕМ ПЕРЕДАННУЮ ФУНКЦИЮ
+                    startIcon={<Delete />}
+                    variant="outlined"
+                    color="warning"
+                >
                     Сбросить все статусы
                 </Button>
-                <Button onClick={randomNext} startIcon={<Shuffle />} variant="outlined" color="info">
+                <Button
+                    onClick={onRandomNext} // ИСПОЛЬЗУЕМ ПЕРЕДАННУЮ ФУНКЦИЮ
+                    startIcon={<Shuffle />}
+                    variant="outlined"
+                    color="info"
+                >
                     Случайный выбор
                 </Button>
-                <Button onClick={handleExport} startIcon={<FileDownload />} variant="outlined" color="info">
+                <Button
+                    onClick={handleExport}
+                    startIcon={<FileDownload />}
+                    variant="outlined"
+                    color="info"
+                >
                     Экспорт данных
                 </Button>
-                <Button onClick={() => setShowBulkModal(true)} startIcon={<FileUpload />} variant="outlined" color="secondary">
+                <Button
+                    onClick={() => setShowBulkModal(true)}
+                    startIcon={<FileUpload />}
+                    variant="outlined"
+                    color="secondary"
+                >
                     Массовое редактирование
                 </Button>
             </Box>
@@ -89,7 +119,11 @@ function QuickActions({ technologies }) {
                                 <MenuItem value="completed">Завершено</MenuItem>
                             </Select>
                         </FormControl>
-                        <Button onClick={handleApplyToSelected} variant="contained" disabled={isApplyDisabled}>
+                        <Button
+                            onClick={handleApplyToSelected}
+                            variant="contained"
+                            disabled={isApplyDisabled}
+                        >
                             Применить ({selectedIds.size})
                         </Button>
                     </Box>

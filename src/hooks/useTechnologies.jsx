@@ -9,19 +9,11 @@ function useTechnologies() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        if (apiLoading) {
-            setLoading(true);
-            return;
-        }
-
-        if (apiError) {
-            setError(apiError);
-            setLoading(false);
-            return;
-        }
+    // Функция для синхронизации данных из localStorage с состоянием
+    const syncTechnologiesFromLocalData = (localData) => {
         const now = new Date().toISOString();
         const userTechs = [];
+
         for (const [id, data] of Object.entries(localData)) {
             if (data && data.title) {
                 userTechs.push({
@@ -39,12 +31,14 @@ function useTechnologies() {
                 });
             }
         }
+
+        // Если есть пользовательские технологии, используем их
         if (userTechs.length > 0) {
             setTechnologies(userTechs);
-            setError(null);
-            setLoading(false);
-            return;
+            return true;
         }
+
+        // Иначе используем API данные
         if (apiTechnologies) {
             const merged = apiTechnologies.map(apiTech => {
                 const local = localData[apiTech.id] || {};
@@ -61,18 +55,37 @@ function useTechnologies() {
                     createdAt: local.createdAt || now,
                     updatedAt: local.updatedAt || now,
                 }
-            })
+            });
             setTechnologies(merged);
-            setError(null);
+            return true;
         }
 
+        return false;
+    };
+
+    useEffect(() => {
+        if (apiLoading) {
+            setLoading(true);
+            return;
+        }
+
+        if (apiError) {
+            setError(apiError);
+            setLoading(false);
+            return;
+        }
+
+        const success = syncTechnologiesFromLocalData(localData);
+        if (success) {
+            setError(null);
+        }
         setLoading(false);
-    }, [apiTechnologies, apiError, apiLoading, localData])
+    }, [apiTechnologies, apiError, apiLoading, localData]);
 
     const updateLocalField = (techId, field, value) => {
         setLocalData(prev => {
             const current = prev[techId] || {};
-            return {
+            const newData = {
                 ...prev,
                 [techId]: {
                     ...current,
@@ -80,9 +93,14 @@ function useTechnologies() {
                     updatedAt: new Date().toISOString(),
                     createdAt: current.createdAt || new Date().toISOString(),
                 },
-            }
-        })
-    }
+            };
+
+            // Сразу синхронизируем состояние
+            setTimeout(() => syncTechnologiesFromLocalData(newData), 0);
+
+            return newData;
+        });
+    };
 
     const updateStatus = (techId, newStatus) => {
         updateLocalField(techId, 'status', newStatus);
@@ -95,7 +113,7 @@ function useTechnologies() {
     const updateDeadlineAndPriority = (techId, deadline, priority) => {
         setLocalData(prev => {
             const current = prev[techId] || {};
-            return {
+            const newData = {
                 ...prev,
                 [techId]: {
                     ...current,
@@ -104,38 +122,62 @@ function useTechnologies() {
                     updatedAt: new Date().toISOString(),
                     createdAt: current.createdAt || new Date().toISOString(),
                 },
-            }
+            };
+
+            // Сразу синхронизируем состояние
+            setTimeout(() => syncTechnologiesFromLocalData(newData), 0);
+
+            return newData;
         });
     };
 
     const markAllCompleted = () => {
-        const newLocal = {...localData};
-        technologies.forEach((tech) => {
-            const current = newLocal[tech.id] || {};
-            newLocal[tech.id] = {
-                ...current,
-                status: 'completed',
-                updatedAt: new Date().toISOString(),
-                createdAt: current.createdAt || new Date().toISOString(),
-            };
+        setLocalData(prev => {
+            const newLocal = {...prev};
+            const now = new Date().toISOString();
+
+            technologies.forEach((tech) => {
+                const current = newLocal[tech.id] || {};
+                newLocal[tech.id] = {
+                    ...current,
+                    status: 'completed',
+                    updatedAt: now,
+                    createdAt: current.createdAt || now,
+                };
+            });
+
+            // Сразу синхронизируем состояние
+            setTimeout(() => syncTechnologiesFromLocalData(newLocal), 0);
+
+            return newLocal;
         });
-        setLocalData(newLocal);
     };
 
     const resetAll = () => {
-        const newLocal = {};
-        const now = new Date().toISOString();
-        technologies.forEach(tech => {
-            newLocal[tech.id] = {
-                status: 'not-started',
-                notes: '',
-                deadline: '',
-                priority: 'medium',
-                createdAt: tech.createdAt || now,
-                updatedAt: now,
-            }
-        })
-        setLocalData(newLocal);
+        setLocalData(prev => {
+            const newLocal = {};
+            const now = new Date().toISOString();
+
+            technologies.forEach(tech => {
+                newLocal[tech.id] = {
+                    title: tech.title,
+                    description: tech.description,
+                    category: tech.category,
+                    resources: tech.resources || [],
+                    status: 'not-started',
+                    notes: '',
+                    deadline: '',
+                    priority: 'medium',
+                    createdAt: tech.createdAt || now,
+                    updatedAt: now,
+                };
+            });
+
+            // Сразу синхронизируем состояние
+            setTimeout(() => syncTechnologiesFromLocalData(newLocal), 0);
+
+            return newLocal;
+        });
     };
 
     const randomNext = () => {
@@ -146,18 +188,25 @@ function useTechnologies() {
     };
 
     const bulkUpdateStatus = (techIds, newStatus) => {
-        const newLocal = {...localData};
-        const now = new Date().toISOString();
-        techIds.forEach(id => {
-            const current = newLocal[id] || {};
-            newLocal[id] = {
-                ...current,
-                status: newStatus,
-                updatedAt: now,
-                createdAt: current.createdAt || now,
-            }
-        })
-        setLocalData(newLocal);
+        setLocalData(prev => {
+            const newLocal = {...prev};
+            const now = new Date().toISOString();
+
+            techIds.forEach(id => {
+                const current = newLocal[id] || {};
+                newLocal[id] = {
+                    ...current,
+                    status: newStatus,
+                    updatedAt: now,
+                    createdAt: current.createdAt || now,
+                };
+            });
+
+            // Сразу синхронизируем состояние
+            setTimeout(() => syncTechnologiesFromLocalData(newLocal), 0);
+
+            return newLocal;
+        });
     };
 
     return {
@@ -173,7 +222,8 @@ function useTechnologies() {
         bulkUpdateStatus,
         refetch,
         setTechnologies,
-        setLocalData
+        setLocalData,
+        syncTechnologiesFromLocalData // экспортируем для ручной синхронизации
     };
 }
 

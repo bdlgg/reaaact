@@ -6,7 +6,7 @@ import Modal from '../components/Modal';
 import NotificationSnackbar from '../components/NotificationSnackbar';
 
 function Settings({ darkMode, toggleDarkMode }) {
-    const { setLocalData } = useTechnologies();
+    const { setLocalData, resetAll } = useTechnologies(); // Добавляем resetAll
     const [showResetModal, setShowResetModal] = useState(false);
     const [showClearAllModal, setShowClearAllModal] = useState(false);
     const [importStatus, setImportStatus] = useState('');
@@ -16,9 +16,11 @@ function Settings({ darkMode, toggleDarkMode }) {
         setNotification({ open: true, message, severity });
     };
 
+    // ИСПРАВЛЕННАЯ ФУНКЦИЯ: теперь она действительно сбрасывает статусы
     const handleResetAll = () => {
+        resetAll(); // Вызываем функцию сброса из useTechnologies
         setShowResetModal(false);
-        showNotification('Функция сброса реализована на главной странице', 'info');
+        showNotification('Все статусы и заметки сброшены!', 'success');
     };
 
     const handleClearAll = () => {
@@ -199,11 +201,22 @@ function Settings({ darkMode, toggleDarkMode }) {
                 onClose={() => setShowResetModal(false)}
                 title="Подтверждение сброса"
             >
-                <Typography>Вы уверены, что хотите сбросить статусы и заметки для всех технологий?</Typography>
-                <Typography color="text.secondary">Это действие нельзя отменить.</Typography>
+                <Typography gutterBottom>Вы уверены, что хотите сбросить статусы и заметки для всех технологий?</Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                    • Все статусы будут изменены на "Не начато"
+                    <br />
+                    • Все заметки будут очищены
+                    <br />
+                    • Сроки и приоритеты будут сброшены
+                </Typography>
+                <Typography color="error" variant="body2">
+                    Это действие нельзя отменить!
+                </Typography>
                 <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
-                    <Button onClick={handleResetAll} color="error">Да, сбросить</Button>
                     <Button onClick={() => setShowResetModal(false)} color="secondary">Отмена</Button>
+                    <Button onClick={handleResetAll} variant="contained" color="error">
+                        Да, сбросить всё
+                    </Button>
                 </Box>
             </Modal>
 
@@ -212,11 +225,22 @@ function Settings({ darkMode, toggleDarkMode }) {
                 onClose={() => setShowClearAllModal(false)}
                 title="Подтверждение удаления"
             >
-                <Typography>Вы уверены, что хотите удалить ВСЕ технологии?</Typography>
-                <Typography color="text.secondary">Все данные будут потеряны. Это действие нельзя отменить.</Typography>
+                <Typography gutterBottom>Вы уверены, что хотите удалить ВСЕ технологии?</Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                    • Будут удалены все технологии из вашего списка
+                    <br />
+                    • Будут удалены все заметки, статусы, сроки
+                    <br />
+                    • Данные будут восстановлены только при импорте
+                </Typography>
+                <Typography color="error" variant="body2">
+                    Это действие нельзя отменить!
+                </Typography>
                 <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 2 }}>
-                    <Button onClick={handleClearAll} color="error">Да, удалить всё</Button>
                     <Button onClick={() => setShowClearAllModal(false)} color="secondary">Отмена</Button>
+                    <Button onClick={handleClearAll} variant="contained" color="error">
+                        Да, удалить всё
+                    </Button>
                 </Box>
             </Modal>
 
