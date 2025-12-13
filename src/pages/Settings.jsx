@@ -6,7 +6,7 @@ import Modal from '../components/Modal';
 import NotificationSnackbar from '../components/NotificationSnackbar';
 
 function Settings({ darkMode, toggleDarkMode }) {
-    const { setLocalData, resetAll } = useTechnologies(); // Добавляем resetAll
+    const { setLocalData, resetAll } = useTechnologies();
     const [showResetModal, setShowResetModal] = useState(false);
     const [showClearAllModal, setShowClearAllModal] = useState(false);
     const [importStatus, setImportStatus] = useState('');
@@ -16,9 +16,8 @@ function Settings({ darkMode, toggleDarkMode }) {
         setNotification({ open: true, message, severity });
     };
 
-    // ИСПРАВЛЕННАЯ ФУНКЦИЯ: теперь она действительно сбрасывает статусы
     const handleResetAll = () => {
-        resetAll(); // Вызываем функцию сброса из useTechnologies
+        resetAll();
         setShowResetModal(false);
         showNotification('Все статусы и заметки сброшены!', 'success');
     };

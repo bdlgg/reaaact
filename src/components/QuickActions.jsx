@@ -2,13 +2,7 @@ import { useState } from "react";
 import { Box, Button, Typography, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, List, ListItem, ListItemButton, ListItemText, Checkbox } from "@mui/material";
 import { CheckCircle, Delete, Shuffle, FileDownload, FileUpload } from "@mui/icons-material";
 
-function QuickActions({
-                          technologies,
-                          onMarkAllCompleted,
-                          onResetAll,
-                          onRandomNext,
-                          onBulkUpdate
-                      }) {
+function QuickActions({technologies, onMarkAllCompleted, onResetAll, onRandomNext, onBulkUpdate}) {
     const [showExportModal, setShowExportModal] = useState(false);
     const [selectedIds, setSelectedIds] = useState(new Set());
     const [newStatusForSelected, setNewStatusForSelected] = useState('not-started');
@@ -46,7 +40,6 @@ function QuickActions({
     const handleApplyToSelected = () => {
         if (selectedIds.size === 0) return;
         const idsToUpdate = Array.from(selectedIds);
-        // ВЫЗЫВАЕМ ПЕРЕДАННУЮ ФУНКЦИЮ
         onBulkUpdate(idsToUpdate, newStatusForSelected);
         setSelectedIds(new Set());
         setShowBulkModal(false);
@@ -59,7 +52,7 @@ function QuickActions({
             <Typography variant="h6" gutterBottom>Быстрые действия</Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 <Button
-                    onClick={onMarkAllCompleted} // ИСПОЛЬЗУЕМ ПЕРЕДАННУЮ ФУНКЦИЮ
+                    onClick={onMarkAllCompleted}
                     startIcon={<CheckCircle />}
                     variant="outlined"
                     color="success"
@@ -67,7 +60,7 @@ function QuickActions({
                     Отметить все как выполненные
                 </Button>
                 <Button
-                    onClick={onResetAll} // ИСПОЛЬЗУЕМ ПЕРЕДАННУЮ ФУНКЦИЮ
+                    onClick={onResetAll}
                     startIcon={<Delete />}
                     variant="outlined"
                     color="warning"
@@ -75,7 +68,7 @@ function QuickActions({
                     Сбросить все статусы
                 </Button>
                 <Button
-                    onClick={onRandomNext} // ИСПОЛЬЗУЕМ ПЕРЕДАННУЮ ФУНКЦИЮ
+                    onClick={onRandomNext}
                     startIcon={<Shuffle />}
                     variant="outlined"
                     color="info"

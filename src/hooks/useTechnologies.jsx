@@ -9,7 +9,6 @@ function useTechnologies() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Функция для синхронизации данных из localStorage с состоянием
     const syncTechnologiesFromLocalData = (localData) => {
         const now = new Date().toISOString();
         const userTechs = [];
@@ -32,13 +31,11 @@ function useTechnologies() {
             }
         }
 
-        // Если есть пользовательские технологии, используем их
         if (userTechs.length > 0) {
             setTechnologies(userTechs);
             return true;
         }
 
-        // Иначе используем API данные
         if (apiTechnologies) {
             const merged = apiTechnologies.map(apiTech => {
                 const local = localData[apiTech.id] || {};
@@ -94,10 +91,7 @@ function useTechnologies() {
                     createdAt: current.createdAt || new Date().toISOString(),
                 },
             };
-
-            // Сразу синхронизируем состояние
             setTimeout(() => syncTechnologiesFromLocalData(newData), 0);
-
             return newData;
         });
     };
@@ -123,10 +117,7 @@ function useTechnologies() {
                     createdAt: current.createdAt || new Date().toISOString(),
                 },
             };
-
-            // Сразу синхронизируем состояние
             setTimeout(() => syncTechnologiesFromLocalData(newData), 0);
-
             return newData;
         });
     };
@@ -145,10 +136,7 @@ function useTechnologies() {
                     createdAt: current.createdAt || now,
                 };
             });
-
-            // Сразу синхронизируем состояние
             setTimeout(() => syncTechnologiesFromLocalData(newLocal), 0);
-
             return newLocal;
         });
     };
@@ -172,10 +160,7 @@ function useTechnologies() {
                     updatedAt: now,
                 };
             });
-
-            // Сразу синхронизируем состояние
             setTimeout(() => syncTechnologiesFromLocalData(newLocal), 0);
-
             return newLocal;
         });
     };
@@ -202,7 +187,6 @@ function useTechnologies() {
                 };
             });
 
-            // Сразу синхронизируем состояние
             setTimeout(() => syncTechnologiesFromLocalData(newLocal), 0);
 
             return newLocal;
@@ -223,7 +207,7 @@ function useTechnologies() {
         refetch,
         setTechnologies,
         setLocalData,
-        syncTechnologiesFromLocalData // экспортируем для ручной синхронизации
+        syncTechnologiesFromLocalData
     };
 }
 

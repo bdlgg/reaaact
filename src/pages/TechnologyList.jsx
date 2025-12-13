@@ -35,7 +35,6 @@ function TechnologyList() {
         return () => clearTimeout(timeoutRef.current);
     }, [searchQuery]);
 
-    // Обертка для функций, чтобы они обновляли UI
     const wrappedUpdateStatus = (techId, newStatus) => {
         updateStatus(techId, newStatus);
         setRefreshKey(prev => prev + 1);
